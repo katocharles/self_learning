@@ -9,6 +9,8 @@ def load_user(id):
     return User.query.get(int(id))
 
 
+followers = db.Table('followers', db.Column('follower_id', db.Integer, db.ForeignKey(
+    'user.id')), db.Column('followed_id', db.Integer, db.ForeignKey('user.id')))
 class User(UserMixin, db.Model):
     __tablename__="user"
     id = db.Column(db.Integer, primary_key=True)
@@ -50,4 +52,4 @@ class Post(db.Model):
         return '<Post {}>'.format(self.body)
 
 
-followers = db.Table('followers', db.Column('follower_id', db.Integer, db.ForeignKey('user.id')), db.Column('followed_id', db.Integer, db.ForeignKey('user.id')))
+
