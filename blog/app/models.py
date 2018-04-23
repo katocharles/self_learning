@@ -20,7 +20,7 @@ class User(UserMixin, db.Model):
     about_me = db.Column(db.String(140))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     #relationships
-    posts = db.relationship('Post', backref='author', lazy='dynamic') #relationshp with post and user as author  
+    posts = db.relationship('Post', backref='author', lazy='dynamic') #relationshp with post and user as author
     followed = db.relationship(
         'User', secondary=followers,
         primaryjoin=(followers.c.follower_id == id),
@@ -40,7 +40,24 @@ class User(UserMixin, db.Model):
         #it will be used for apicture
         pass
 
+    def follow(self, user):
+        if not self.is_following(user):
+            self.followed.append(user)
 
+    def unfollow(self, user):
+        if self.is_following(user):
+            self.followed.remove(user)
+
+    def is_following(self, user):
+        return self.followed.filter(
+            followers.c.followed_id == user.id).count() > 0
+
+    def followed_posts(self):
+        followed = Post.query.join(
+            followers, (followers.c.followed_id == Post.user_id)).filter(
+                followers.c.follower_id == self.id)
+        own = Post.query.filter_by(user_id=self.id)
+        return followed.union(own).order_by(Post.timestamp.desc())
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
