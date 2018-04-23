@@ -3,6 +3,11 @@ from datetime import datetime
 from app import db, login
 from flask_login import UserMixin
 
+#User loader function to support flask-login
+@login.user_loader
+def load_user(id):
+    return User.query.get(int(id))
+
 
 class User(UserMixin, db.Model):
     __tablename__="user"
@@ -30,7 +35,4 @@ class Post(db.Model):
     def __repr__(self):
         return '<Post {}>'.format(self.body)
 
-#User loader function to support flask-login
-@login.user_loader
-def load_user(id):
-    return User.query.get(int(id))
+
